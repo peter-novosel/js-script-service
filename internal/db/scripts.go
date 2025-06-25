@@ -40,11 +40,12 @@ type ScriptMeta struct {
 	Slug      string    `json:"slug"`
 	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`
+	Code      string    `json:"code"`
 }
 
 func ListScripts(ctx context.Context) ([]ScriptMeta, error) {
 	rows, err := conn.Query(ctx, `
-		SELECT name, path, enabled, created_at FROM scripts ORDER BY created_at DESC
+		SELECT name, path, code, enabled, created_at FROM scripts ORDER BY created_at DESC
 	`)
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func ListScripts(ctx context.Context) ([]ScriptMeta, error) {
 	for rows.Next() {
 		var s ScriptMeta
 		var path string
-		if err := rows.Scan(&s.Name, &path, &s.Enabled, &s.CreatedAt); err != nil {
+		if err := rows.Scan(&s.Name, &path, &s.Code, &s.Enabled, &s.CreatedAt); err != nil {
 			return nil, err
 		}
 		s.Slug = path[len("/scripts/"):]

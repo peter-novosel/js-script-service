@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 
 	"github.com/peter-novosel/js-script-service/internal/config"
 	"github.com/peter-novosel/js-script-service/internal/logger"
@@ -20,6 +21,11 @@ func Setup(cfg *config.Config) http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"},
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+	}))
 
 	// Health check
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {

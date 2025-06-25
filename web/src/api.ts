@@ -15,3 +15,13 @@ export const saveScript = async (data: {
   const res = await axios.post(`${API_BASE}/admin/scripts`, data);
   return res.data;
 };
+
+export const disableScript = async (slug: string) => {
+  const res = await axios.post(`${API_BASE}/admin/scripts`, {
+    name: "", // required to satisfy server schema
+    slug,
+    code: "",
+    enabled: false,
+  });
+  return res.data;
+};
