@@ -8,7 +8,8 @@ function App() {
 
   const refreshScripts = async () => {
     const data = await listScripts();
-    setScripts(data);
+    setScripts(data.filter((s: any) => s.enabled));
+    setEditScript(null); // reset editor after refresh
   };
 
   useEffect(() => {

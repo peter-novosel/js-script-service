@@ -15,6 +15,7 @@ type ScriptRequest struct {
 	Name string `json:"name"`
 	Slug string `json:"slug"`
 	Code string `json:"code"`
+	Enabled *bool   `json:"enabled"` // Optional, defaults to true
 }
 
 func CreateOrUpdateScript(w http.ResponseWriter, r *http.Request) {
@@ -24,9 +25,17 @@ func CreateOrUpdateScript(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Slug == "" || req.Code == "" {
-		http.Error(w, "slug and code are required", http.StatusBadRequest)
+	if req.Slug == "" {
+		http.Error(w, "slug is required", http.StatusBadRequest)
 		return
+	}
+
+	if req.Enabled == nil || *req.Enabled {
+		// If creating or enabling a script, require code
+		if req.Code == "" {
+			http.Error(w, "code is required when enabled", http.StatusBadRequest)
+			return
+		}
 	}
 
 	// ✅ Validate JS syntax
@@ -37,7 +46,11 @@ func CreateOrUpdateScript(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ✅ Save to DB
-	err := db.UpsertScript(r.Context(), req.Name, req.Slug, req.Code)
+	isEnabled := true
+	if req.Enabled != nil {
+		isEnabled = *req.Enabled
+	}
+	err := db.UpsertScript(r.Context(), req.Name, req.Slug, req.Code, isEnabled)
 	if err != nil {
 		logger.Init().WithError(err).Error("failed to upsert script")
 		http.Error(w, "could not save script", http.StatusInternalServerError)

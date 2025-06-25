@@ -91,7 +91,7 @@ export function ScriptEditor({ onSave, initial }: Props) {
         />
       </div>
       <div>
-        <button onClick={() => handleEdit(s)}>✏️ Edit</button>
+        
 
       </div>
 

@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func UpsertScript(ctx context.Context, name, slug, code string) error {
+func UpsertScript(ctx context.Context, name, slug, code string, enabled bool) error {
 	path := "/scripts/" + slug
 
 	var exists bool
@@ -23,13 +23,13 @@ func UpsertScript(ctx context.Context, name, slug, code string) error {
 
 	if exists {
 		_, err = conn.Exec(ctx, `
-			UPDATE scripts SET name = $1, code = $2, enabled = TRUE WHERE path = $3
-		`, name, code, path)
+			UPDATE scripts SET name = $1, code = $2, enabled = $3 WHERE path = $4
+		`, name, code, enabled, path)
 	} else {
 		_, err = conn.Exec(ctx, `
 			INSERT INTO scripts (id, name, path, code, enabled, created_at)
 			VALUES ($1, $2, $3, $4, $5, $6)
-		`, uuid.New(), name, path, code, true, time.Now())
+		`, uuid.New(), name, path, code, enabled, time.Now())
 	}
 
 	return err
