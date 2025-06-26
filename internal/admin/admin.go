@@ -39,7 +39,8 @@ func CreateOrUpdateScript(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ✅ Validate JS syntax
-	if _, err := goja.Compile("", req.Code, false); err != nil {
+	wrappedCode := "(async () => {" + req.Code + "})()" // Add the wrapper
+	if _, err := goja.Compile("", wrappedCode, false); err != nil { // Compile the wrapped version
 		logger.Init().WithError(err).Warn("invalid JavaScript")
 		http.Error(w, "invalid JavaScript: "+err.Error(), http.StatusBadRequest)
 		return
